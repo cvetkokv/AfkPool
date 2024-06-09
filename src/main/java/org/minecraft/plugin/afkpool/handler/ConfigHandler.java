@@ -31,9 +31,7 @@ public class ConfigHandler {
 		if (worldGuard != null) {
 			Bukkit.getLogger().info("AFKRewards has been enabled!!");
 
-			long rewardInterval = config.getRewardInterval();
-
-			afkRewardTask = new AFKRewardTask(rewardInterval);
+			afkRewardTask = new AFKRewardTask(config);
 			afkRewardTask.runTaskTimerAsynchronously(plugin, 0L, 20L);
 		} else {
 			server.getPluginManager().disablePlugin(plugin);
@@ -51,11 +49,9 @@ public class ConfigHandler {
 			afkRewardTask.cancel();
 		}
 
-		long rewardInterval = config.getRewardInterval();
-
 		Map<UUID, Long> cashedTimers = afkRewardTask.get();
 
-		afkRewardTask = new AFKRewardTask(rewardInterval, cashedTimers);
+		afkRewardTask = new AFKRewardTask(config, cashedTimers);
 		afkRewardTask.runTaskTimerAsynchronously(plugin, 0L, 20L);
 
 		eventHandlerManager.unregisterListener(AFKRegionListener.class);

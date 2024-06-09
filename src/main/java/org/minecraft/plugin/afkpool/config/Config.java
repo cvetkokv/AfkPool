@@ -55,6 +55,10 @@ public class Config {
 		return TimeUtil.minutesToMilliseconds(getLong(ConfigKey.REWARD_INTERVAL));
 	}
 
+	public List<String> getCommandsOnReward() {
+		return getStringList(ConfigKey.COMMAND_ON_REWARD);
+	}
+
 	public long getLong(ConfigKey key) {
 		return config.getLong(key.getId());
 	}

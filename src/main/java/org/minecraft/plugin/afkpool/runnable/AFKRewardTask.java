@@ -5,22 +5,35 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.*;
 import org.bukkit.scheduler.*;
 import org.minecraft.plugin.afkpool.*;
+import org.minecraft.plugin.afkpool.config.*;
 
 import java.util.*;
 
 public class AFKRewardTask extends BukkitRunnable {
 
-	private final Map<UUID, Long> afkStartTimes;
-	private final long rewardInterval;
+	private final static Map<UUID, Long> afkStartTimes = new HashMap<>();
+	private static long rewardInterval = 0;
+	private final List<String> commandsOnReward;
 
-	public AFKRewardTask(long rewardInterval) {
-		this.rewardInterval = rewardInterval;
-		this.afkStartTimes = new HashMap<>();
+	public AFKRewardTask(Config config) {
+		rewardInterval = config.getRewardInterval();
+		this.commandsOnReward = config.getCommandsOnReward();
 	}
 
-	public AFKRewardTask(long rewardInterval, Map<UUID, Long> afkStartTimes) {
-		this.rewardInterval = rewardInterval;
-		this.afkStartTimes = afkStartTimes;
+	public AFKRewardTask(Config config, Map<UUID, Long> cashedTimers) {
+		rewardInterval = config.getRewardInterval();
+		this.commandsOnReward = config.getCommandsOnReward();
+		afkStartTimes.clear();
+		afkStartTimes.putAll(cashedTimers);
+	}
+
+	public static Long nextReward(UUID playerId) {
+		Long startTime = afkStartTimes.get(playerId);
+		if (startTime == null) {
+			return null;
+		}
+		long elapsedTime = System.currentTimeMillis() - startTime;
+		return rewardInterval - elapsedTime;
 	}
 
 	public Map<UUID, Long> get() {
@@ -48,7 +61,9 @@ public class AFKRewardTask extends BukkitRunnable {
 				if (afkTime >= rewardInterval) {
 					Bukkit.getScheduler().runTask(AfkPool.getPlugin(AfkPool.class), () -> {
 						player.getInventory().addItem(new ItemStack(Material.DIAMOND, 1));
-						player.sendMessage("You have received a diamond for being in the AFK region for 30 minutes!");
+						for (String command : commandsOnReward) {
+							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("{player}", player.getName()));
+						}
 					});
 					afkStartTimes.put(playerId, System.currentTimeMillis());
 				}

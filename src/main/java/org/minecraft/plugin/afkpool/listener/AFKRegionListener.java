@@ -10,6 +10,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.minecraft.plugin.afkpool.*;
 import org.minecraft.plugin.afkpool.runnable.*;
+import org.minecraft.plugin.afkpool.util.*;
 
 import java.util.UUID;
 
@@ -36,12 +37,12 @@ public class AFKRegionListener implements Listener {
 		if (inAfkRewardRegion) {
 			if (!afkRewardTask.isPlayerInList(playerId)) {
 				afkRewardTask.addPlayer(playerId);
-				player.sendMessage("You have entered the AFK reward region!");
+				MessageUtil.sendPrefixedMessage(player, "You have entered the AFK reward region!");
 			}
 		} else {
 			if (afkRewardTask.isPlayerInList(playerId)) {
 				afkRewardTask.removePlayer(playerId);
-				player.sendMessage("You have left the AFK reward region!");
+				MessageUtil.sendPrefixedMessage(player, "You have left the AFK reward region!");
 			}
 		}
 	}

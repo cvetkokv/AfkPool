@@ -24,9 +24,6 @@ public class AfkPool extends JavaPlugin {
         eventHandlerManager = new EventHandlerManager(this);
         configHandler = new ConfigHandler(this, config, getServer(), eventHandlerManager);
 
-        List<String> commandsOnReward = config.getStringList(ConfigKey.COMMAND_ON_REWARD);
-        getLogger().info(String.join("|", commandsOnReward));
-
         configHandler.configStartup();
 
         Objects.requireNonNull(this.getCommand("ap"))
