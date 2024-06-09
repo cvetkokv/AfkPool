@@ -25,9 +25,6 @@ public class AfkPool extends JavaPlugin {
         configHandler = new ConfigHandler(this, config, getServer(), eventHandlerManager);
 
         configHandler.configStartup();
-
-        Objects.requireNonNull(this.getCommand("ap"))
-                .setExecutor(new ApCommand(configHandler));
     }
 
     @Override

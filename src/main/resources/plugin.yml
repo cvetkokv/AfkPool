@@ -8,6 +8,11 @@ author: Cveleee
 depend: [WorldGuard, WorldEdit]
 
 commands:
+  afkpool:
+    description: Main command for AfkPool plugin
+    aliases: [ap]
+    usage: /<command> help
   ap:
-    usage: /<command>
-    aliases: []
+    description: Alias for AfkPool main command
+    aliases: [afkpool]
+    usage: /<command> help

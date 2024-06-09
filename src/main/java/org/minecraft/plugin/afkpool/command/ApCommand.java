@@ -25,8 +25,13 @@ public class ApCommand implements CommandExecutor {
 	public boolean onCommand(@NonNull CommandSender sender,
 							 @NonNull Command command,
 							 @NonNull String label, String[] args) {
-		if (args.length == 1 && args[0].equalsIgnoreCase(PermissionAndCommand.RELOAD.getCommand())) {
-			if (sender.hasPermission(PermissionAndCommand.RELOAD.getPermission())) {
+		if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
+			sendHelpMessage(sender);
+			return true;
+		}
+
+		if (args.length == 1 && args[0].equalsIgnoreCase(Commands.RELOAD.getCommand())) {
+			if (sender.hasPermission(Commands.RELOAD.getPermission())) {
 				configHandler.reloadConfig();
 				MessageUtil.sendPrefixedMessage(sender, "Configuration reloaded.");
 			} else {
@@ -35,8 +40,8 @@ public class ApCommand implements CommandExecutor {
 			return true;
 		}
 
-		if (args.length == 1 && args[0].equalsIgnoreCase(PermissionAndCommand.NEXT.getCommand())) {
-			if (sender.hasPermission(PermissionAndCommand.NEXT.getPermission())) {
+		if (args.length == 1 && args[0].equalsIgnoreCase(Commands.NEXT.getCommand())) {
+			if (sender.hasPermission(Commands.NEXT.getPermission())) {
 				Player player = Bukkit.getPlayer(sender.getName());
 				if (player == null) {
 					MessageUtil.sendPrefixedMessage(sender, "Only player can use this message");
@@ -54,5 +59,13 @@ public class ApCommand implements CommandExecutor {
 		}
 
 		return true;
+	}
+
+	private void sendHelpMessage(CommandSender sender) {
+		sender.sendMessage("§3[§b§lAfkPool§3] §6Available Commands:");
+		sender.sendMessage("§6/ap help - Shows this help message.");
+		sender.sendMessage("§6/ap create - Creates an AFK region from WorldEdit selection.");
+		sender.sendMessage("§6/ap reload - Reloads the plugin configuration.");
+		sender.sendMessage("§6/ap next - Shows the time remaining for the next reward.");
 	}
 }

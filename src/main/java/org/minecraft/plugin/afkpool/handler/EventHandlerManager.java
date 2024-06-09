@@ -1,16 +1,25 @@
 package org.minecraft.plugin.afkpool.handler;
 
+import org.bukkit.command.*;
 import org.bukkit.event.*;
 import org.bukkit.plugin.*;
+import org.bukkit.plugin.java.*;
+import org.minecraft.plugin.afkpool.command.*;
 
 import java.util.*;
 
 public class EventHandlerManager {
-	private final Plugin plugin;
+	private final JavaPlugin plugin;
 	private final List<Listener> registeredListeners = new ArrayList<>();
+	private final List<CommandExecutor> registeredCommands = new ArrayList<>();
 
-	public EventHandlerManager(Plugin plugin) {
+	public EventHandlerManager(JavaPlugin plugin) {
 		this.plugin = plugin;
+	}
+
+	public void registerCommand(String name, CommandExecutor commandExecutor) {
+		Objects.requireNonNull(plugin.getCommand(name))
+				.setExecutor(commandExecutor);
 	}
 
 	public void registerListener(Listener listener) {
