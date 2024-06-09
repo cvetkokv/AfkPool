@@ -30,7 +30,7 @@ public class ApCommand implements CommandExecutor {
 				configHandler.reloadConfig();
 				MessageUtil.sendPrefixedMessage(sender, "Configuration reloaded.");
 			} else {
-				sender.sendMessage(NO_PERMISSION);
+				MessageUtil.sendPrefixedMessage(sender, NO_PERMISSION);
 			}
 			return true;
 		}
@@ -49,7 +49,7 @@ public class ApCommand implements CommandExecutor {
 					MessageUtil.sendPrefixedMessage(sender, "Next reward in: " + TimeUtil.formatMillisToMinutesSeconds(nextRewardTimer));
 				}
 			} else {
-				sender.sendMessage(NO_PERMISSION);
+				MessageUtil.sendPrefixedMessage(sender, NO_PERMISSION);
 			}
 		}
 
