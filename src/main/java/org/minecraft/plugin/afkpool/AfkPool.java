@@ -1,19 +1,17 @@
 package org.minecraft.plugin.afkpool;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.WorldGuard;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.minecraft.plugin.afkpool.command.*;
 import org.minecraft.plugin.afkpool.config.*;
 import org.minecraft.plugin.afkpool.handler.*;
-import org.minecraft.plugin.afkpool.listener.AFKRegionListener;
-import org.minecraft.plugin.afkpool.runnable.AFKRewardTask;
+
+import java.util.*;
 
 public class AfkPool extends JavaPlugin {
 
-    private AFKRewardTask afkRewardTask;
-    private WorldGuardPlugin worldGuard;
+    private Config config;
     private ConfigHandler configHandler;
+    private EventHandlerManager eventHandlerManager;
 
     @Override
     public void onLoad() {
@@ -22,23 +20,17 @@ public class AfkPool extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        configHandler = new ConfigHandler(this);
+        config = new Config(this);
+        eventHandlerManager = new EventHandlerManager(this);
+        configHandler = new ConfigHandler(this, config, getServer(), eventHandlerManager);
 
-        long rewardInterval = configHandler.getLong(ConfigKey.REWARD_INTERVAL);
+        List<String> commandsOnReward = config.getStringList(ConfigKey.COMMAND_ON_REWARD);
+        getLogger().info(String.join("|", commandsOnReward));
 
-        worldGuard = (WorldGuardPlugin) Bukkit.getPluginManager().getPlugin("WorldGuard");
+        configHandler.configStartup();
 
-        if (worldGuard != null) {
-            getLogger().info("AFKRewards has been enabled with WorldGuard support!");
-
-            afkRewardTask = new AFKRewardTask(rewardInterval);
-            afkRewardTask.runTaskTimer(this, 0L, 20L);
-
-            getServer().getPluginManager().registerEvents(new AFKRegionListener(worldGuard, afkRewardTask), this);
-        } else {
-            getLogger().severe("WorldGuard is not installed! Disabling AFKRewards.");
-            getServer().getPluginManager().disablePlugin(this);
-        }
+        Objects.requireNonNull(this.getCommand("ap"))
+                .setExecutor(new ApCommand(configHandler));
     }
 
     @Override

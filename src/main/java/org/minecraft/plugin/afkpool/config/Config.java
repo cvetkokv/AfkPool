@@ -1,17 +1,18 @@
 package org.minecraft.plugin.afkpool.config;
 
 import org.bukkit.configuration.file.*;
-import org.bukkit.plugin.java.*;
+import org.bukkit.plugin.*;
+import org.minecraft.plugin.afkpool.util.*;
 
 import java.io.*;
 import java.util.*;
 
-public class ConfigHandler {
+public class Config {
 	private final FileConfiguration config;
 	private final File configFile;
-	private final JavaPlugin plugin;
+	private final Plugin plugin;
 
-	public ConfigHandler(JavaPlugin plugin) {
+	public Config(Plugin plugin) {
 		this.plugin = plugin;
 		this.configFile = new File(plugin.getDataFolder(), "config.yml");
 
@@ -22,33 +23,42 @@ public class ConfigHandler {
 		this.config = YamlConfiguration.loadConfiguration(configFile);
 	}
 
-	private void createDefaultConfig(JavaPlugin plugin) {
+	private void createDefaultConfig(Plugin plugin) {
 		try {
 			if (plugin.getDataFolder().mkdirs()) {
 				plugin.getLogger().info("Created plugin data folder.");
 			}
 			if (configFile.createNewFile()) {
 				plugin.getLogger().info("Created default config.yml.");
-				setDefaults();
+				writeDefaultConfigWithComments();
 			}
 		} catch (IOException e) {
 			plugin.getLogger().severe(Arrays.toString(e.getStackTrace()));
 		}
 	}
 
-	private void setDefaults() {
-		YamlConfiguration defaultConfig = new YamlConfiguration();
-		for (ConfigKey key : ConfigKey.values()) {
-			defaultConfig.set(key.getKey(), key.getDefault());
-		}
-		try {
-			defaultConfig.save(configFile);
+	private void writeDefaultConfigWithComments() {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(configFile))) {
+			for (ConfigKey key : ConfigKey.values()) {
+				writer.write("# " + key.getComment());
+				writer.newLine();
+				writer.write(key.getId() + ": " + key.getDefault());
+				writer.newLine();
+				writer.newLine();
+			}
 		} catch (IOException e) {
 			plugin.getLogger().severe(Arrays.toString(e.getStackTrace()));
 		}
 	}
 
+	public long getRewardInterval() {
+		return TimeUtil.minutesToMilliseconds(getLong(ConfigKey.REWARD_INTERVAL));
+	}
+
 	public long getLong(ConfigKey key) {
-		return config.getLong(key.getKey());
+		return config.getLong(key.getId());
+	}
+	public List<String> getStringList(ConfigKey key) {
+		return config.getStringList(key.getId());
 	}
 }
