@@ -30,8 +30,9 @@ public class AFKRewardTask extends BukkitRunnable {
 		rewardInterval = config.getRewardInterval();
 		this.commandsOnReward = config.getCommandsOnReward();
 		this.itemRewards = config.getItemsOnReward();
-		afkStartTimes.clear();
-		afkStartTimes.putAll(cashedTimers);
+		synchronized (afkStartTimes) {
+			afkStartTimes.putAll(cashedTimers);
+		}
 	}
 
 	public static Long nextReward(UUID playerId) {

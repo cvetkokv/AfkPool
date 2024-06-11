@@ -20,6 +20,7 @@ public class EventHandlerManager {
 	public void registerCommand(String name, CommandExecutor commandExecutor) {
 		Objects.requireNonNull(plugin.getCommand(name))
 				.setExecutor(commandExecutor);
+		registeredCommands.add(commandExecutor);
 	}
 
 	public void registerListener(Listener listener) {
