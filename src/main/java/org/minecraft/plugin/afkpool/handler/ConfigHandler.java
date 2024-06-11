@@ -18,14 +18,16 @@ public class ConfigHandler {
 	private final WorldGuardPlugin worldGuard;
 	private Config config;
 	private AFKRewardTask afkRewardTask;
+	private final DatabaseConfig databaseConfig;
 
 	public ConfigHandler(JavaPlugin plugin, Config config, Server server,
-						 EventHandlerManager eventHandlerManager) {
+						 EventHandlerManager eventHandlerManager, DatabaseConfig databaseConfig) {
 		this.plugin = plugin;
 		this.config = config;
 		this.server = server;
 		this.eventHandlerManager = eventHandlerManager;
 		this.worldGuard = (WorldGuardPlugin) server.getPluginManager().getPlugin("WorldGuard");
+		this.databaseConfig = databaseConfig;
 	}
 
 	public void configStartup() {
@@ -39,7 +41,7 @@ public class ConfigHandler {
 
 		eventHandlerManager.registerListener(new AFKRegionListener(worldGuard, afkRewardTask));
 
-		ApCommand apCommand = new ApCommand(this);
+		ApCommand apCommand = new ApCommand(this, databaseConfig);
 		eventHandlerManager.registerCommand("afkpool", apCommand);
 		eventHandlerManager.registerCommand("ap", apCommand);
 		Bukkit.getLogger().info("AfkPool has been enabled!!");

@@ -10,6 +10,7 @@ import java.util.*;
 public class AfkPool extends JavaPlugin {
 
     private Config config;
+    private DatabaseConfig databaseConfig;
     private ConfigHandler configHandler;
     private EventHandlerManager eventHandlerManager;
 
@@ -21,8 +22,9 @@ public class AfkPool extends JavaPlugin {
     @Override
     public void onEnable() {
         config = new Config(this);
+        this.databaseConfig = new DatabaseConfig(this);
         eventHandlerManager = new EventHandlerManager(this);
-        configHandler = new ConfigHandler(this, config, getServer(), eventHandlerManager);
+        configHandler = new ConfigHandler(this, config, getServer(), eventHandlerManager, databaseConfig);
 
         configHandler.configStartup();
     }

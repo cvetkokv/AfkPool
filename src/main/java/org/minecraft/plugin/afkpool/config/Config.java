@@ -1,15 +1,12 @@
 package org.minecraft.plugin.afkpool.config;
 
-import org.bukkit.*;
 import org.bukkit.configuration.file.*;
 import org.bukkit.plugin.*;
-import org.json.*;
 import org.minecraft.plugin.afkpool.domain.*;
 import org.minecraft.plugin.afkpool.util.*;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Config {
 	private final FileConfiguration config;
@@ -47,8 +44,34 @@ public class Config {
 			for (ConfigKey key : ConfigKey.values()) {
 				writer.write("# " + key.getComment());
 				writer.newLine();
-				writer.write(key.getId() + ": " + key.getDefault());
-				writer.newLine();
+
+				if (key == ConfigKey.ITEMS_ON_REWARD) {
+					writer.write(key.getId() + ":");
+					writer.newLine();
+
+					@SuppressWarnings("unchecked")
+					List<Map<String, Object>> items = (List<Map<String, Object>>) key.getDefault();
+					for (Map<String, Object> item : items) {
+						writer.write("  - item: " + item.get("item"));
+						writer.newLine();
+						writer.write("    amount: " + item.get("amount"));
+						writer.newLine();
+					}
+				} else if (key == ConfigKey.COMMAND_ON_REWARD) {
+					writer.write(key.getId() + ":");
+					writer.newLine();
+
+					@SuppressWarnings("unchecked")
+					List<String> commands = (List<String>) key.getDefault();
+					for (String command : commands) {
+						writer.write("  - " + command);
+						writer.newLine();
+					}
+				} else {
+					writer.write(key.getId() + ": " + key.getDefault());
+					writer.newLine();
+				}
+
 				writer.newLine();
 			}
 		} catch (IOException e) {
@@ -65,8 +88,34 @@ public class Config {
 					writer.newLine();
 					writer.write("# " + key.getComment());
 					writer.newLine();
-					writer.write(key.getId() + ": " + key.getDefault());
-					writer.newLine();
+
+					if (key == ConfigKey.ITEMS_ON_REWARD) {
+						writer.write(key.getId() + ":");
+						writer.newLine();
+
+						@SuppressWarnings("unchecked")
+						List<Map<String, Object>> items = (List<Map<String, Object>>) key.getDefault();
+						for (Map<String, Object> item : items) {
+							writer.write("  - item: " + item.get("item"));
+							writer.newLine();
+							writer.write("    amount: " + item.get("amount"));
+							writer.newLine();
+						}
+					} else if (key == ConfigKey.COMMAND_ON_REWARD) {
+						writer.write(key.getId() + ":");
+						writer.newLine();
+
+						@SuppressWarnings("unchecked")
+						List<String> commands = (List<String>) key.getDefault();
+						for (String command : commands) {
+							writer.write("  - " + command);
+							writer.newLine();
+						}
+					} else {
+						writer.write(key.getId() + ": " + key.getDefault());
+						writer.newLine();
+					}
+
 					writer.newLine();
 				}
 			}
@@ -74,6 +123,7 @@ public class Config {
 			plugin.getLogger().severe("Failed to append to config: " + e.getMessage());
 		}
 	}
+
 
 	public long getRewardInterval() {
 		return TimeUtil.minutesToMilliseconds(getLong(ConfigKey.REWARD_INTERVAL));
@@ -84,21 +134,17 @@ public class Config {
 	}
 
 	public List<ItemReward> getItemsOnReward() {
-		List<Map<?, ?>> mapList = getMapList(ConfigKey.ITEMS_ON_REWARD);
-		Bukkit.getLogger().info(mapList.stream().map(
-				item -> item.entrySet().stream()
-						.map(entry -> entry.getKey() + " : " + entry.getValue())
-						.collect(Collectors.joining(" | "))
-		).collect(Collectors.joining(", ")));
 		List<ItemReward> items = new ArrayList<>();
+		List<Map<?, ?>> mapList = config.getMapList(ConfigKey.ITEMS_ON_REWARD.getId());
 
 		for (Map<?, ?> map : mapList) {
 			try {
-				String itemName = (String) map.get("item");
-				int amount = (int) map.get("amount");
-				items.add(new ItemReward(itemName, amount));
+				String item = (String) map.get("item");
+				int amount = (Integer) map.get("amount");
+				ItemReward itemReward = new ItemReward(item, amount);
+				items.add(itemReward);
 			} catch (Exception e) {
-				plugin.getLogger().severe("Failed to parse JSON item reward: " + e.getMessage());
+				plugin.getLogger().severe("Failed to parse item reward: " + e.getMessage());
 			}
 		}
 		return items;
@@ -109,9 +155,5 @@ public class Config {
 	}
 	public List<String> getStringList(ConfigKey key) {
 		return config.getStringList(key.getId());
-	}
-
-	public List<Map<?, ?>> getMapList(ConfigKey key) {
-		return config.getMapList(key.getId());
 	}
 }

@@ -2,7 +2,10 @@ package org.minecraft.plugin.afkpool.config;
 
 public enum Permissions {
 	NEXT("next"),
-	RELOAD("reload");
+	RELOAD("reload"),
+	CREATE("create"),
+	REMOVE("remove"),
+	LIST("list");
 
 	private final String permission;
 
