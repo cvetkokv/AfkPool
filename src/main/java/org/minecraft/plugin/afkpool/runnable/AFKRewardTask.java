@@ -6,8 +6,11 @@ import org.bukkit.inventory.*;
 import org.bukkit.scheduler.*;
 import org.minecraft.plugin.afkpool.*;
 import org.minecraft.plugin.afkpool.config.*;
+import org.minecraft.plugin.afkpool.domain.*;
+import org.minecraft.plugin.afkpool.util.*;
 
 import java.util.*;
+import java.util.stream.*;
 
 public class AFKRewardTask extends BukkitRunnable {
 
@@ -15,14 +18,18 @@ public class AFKRewardTask extends BukkitRunnable {
 	private static long rewardInterval = 0;
 	private final List<String> commandsOnReward;
 
+	private final List<ItemReward> itemRewards;
+
 	public AFKRewardTask(Config config) {
 		rewardInterval = config.getRewardInterval();
 		this.commandsOnReward = config.getCommandsOnReward();
+		this.itemRewards = config.getItemsOnReward();
 	}
 
 	public AFKRewardTask(Config config, Map<UUID, Long> cashedTimers) {
 		rewardInterval = config.getRewardInterval();
 		this.commandsOnReward = config.getCommandsOnReward();
+		this.itemRewards = config.getItemsOnReward();
 		afkStartTimes.clear();
 		afkStartTimes.putAll(cashedTimers);
 	}
@@ -60,7 +67,16 @@ public class AFKRewardTask extends BukkitRunnable {
 				long afkTime = System.currentTimeMillis() - afkStartTimes.get(playerId);
 				if (afkTime >= rewardInterval) {
 					Bukkit.getScheduler().runTask(AfkPool.getPlugin(AfkPool.class), () -> {
-						player.getInventory().addItem(new ItemStack(Material.DIAMOND, 1));
+						if (!itemRewards.isEmpty()) {
+							for (ItemReward itemReward : itemRewards) {
+								player.getInventory().addItem(itemReward.createItemStack());
+							}
+							String addedItems = itemRewards.stream()
+									.map(item -> item.getAmount() + " " + item.getItemName())
+									.collect(Collectors.joining(", "));
+
+							MessageUtil.sendPrefixedMessage(player, "You received: " + addedItems);
+						}
 						for (String command : commandsOnReward) {
 							Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command.replace("{player}", player.getName()));
 						}
